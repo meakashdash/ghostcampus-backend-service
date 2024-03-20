@@ -49,15 +49,8 @@ export const createUser=async(req,res)=>{
             TABLE_NAMES.USERS,
             userItem
         )
-        const payload={
-            userId:userItem._id,
-            userName,
-            email
-        }
-        const token=jwt.sign(payload,JWT_KEY,{expiresIn:'8h'})
         return res.json({
             statusCode:200,
-            token,
             message:"User Created Successfully"
         })
     } catch (error) {
