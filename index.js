@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import { PORT } from "./utils/config.js";
 import authRouter from "./routes/authRouter.js";
+import postRouter from "./routes/postRouter.js";
+import tagRouter from "./routes/tagRouter.js";
 
 const app = express();
 
@@ -20,7 +22,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-const routes = [authRouter];
+const routes = [authRouter,postRouter,tagRouter];
 
 routes.forEach((router) => {
   app.use(router);
