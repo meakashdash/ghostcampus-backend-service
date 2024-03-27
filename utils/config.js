@@ -20,7 +20,10 @@ const CONFIG_PARA={
         TABLE_NAMES:{
             USERS:"USERS",
             TAGS:"TAGS",
-            POSTS:"POSTS"
+            POSTS:"POSTS",
+            LIKES:"LIKES",
+            COMMENT:"COMMENT",
+            BOOKMARK:"BOOKMARK"
         }
     },
     PROD:{
@@ -29,7 +32,10 @@ const CONFIG_PARA={
         TABLE_NAMES:{
             USERS:"USERS",
             TAGS:"TAGS",
-            POSTS:"POSTS"
+            POSTS:"POSTS",
+            LIKES:"LIKES",
+            COMMENT:"COMMENT",
+            BOOKMARK:"BOOKMARK"
         }
     }
 }
