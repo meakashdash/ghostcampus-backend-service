@@ -2,34 +2,43 @@ import { ObjectId } from "mongodb";
 import { MongoDBService } from "../services/MongoDBService.js";
 import { S3Service } from "../services/S3Service.js";
 import { BUCKET_NAME, TABLE_NAMES } from "../utils/config.js";
+import moment from 'moment';
 
 const mongoDBService = new MongoDBService();
 const s3Service = new S3Service();
 export const createPost = async (req, res) => {
   try {
     const { userId } = req.user;
+    const { tagId } = req.body;
     const media = {};
     const timestamp = Date.now().toString();
-    const imageKey = `images/${timestamp}`;
-    const images = await s3Service.uploadImages(
-      req.files,
-      BUCKET_NAME,
-      "posts",
-      imageKey
-    );
-    media.images = images;
-    const videoKey = `videos/${timestamp}`;
-    const videos = await s3Service.uploadVideos(
-      req.files,
-      BUCKET_NAME,
-      "posts",
-      videoKey
-    );
-    media.videos = videos;
+    if (req.files.images) {
+      const imageKey = `images/${timestamp}`;
+      const images = await s3Service.uploadImages(
+        req.files,
+        BUCKET_NAME,
+        "posts",
+        imageKey
+      );
+      media.images = images;
+    }
+    if (req.files.videos) {
+      const videoKey = `videos/${timestamp}`;
+      const videos = await s3Service.uploadVideos(
+        req.files,
+        BUCKET_NAME,
+        "posts",
+        videoKey
+      );
+      media.videos = videos;
+    }
+    const tagResponse = await mongoDBService.getItem(TABLE_NAMES.TAGS, tagId);
     const postItem = {
       _id: new ObjectId(),
       userId: userId,
       title: req.body.title,
+      tagColor: tagResponse.color,
+      tagText: tagResponse.text,
       media: media,
       postType: "post",
       createdAt: new Date(),
@@ -82,9 +91,7 @@ export const getAllPosts = async (req, res) => {
           "postId",
           post._id.toString()
         );
-        if (!likeCount) {
-          likeCount = 0;
-        }
+        likeCount = likeCount ? likeCount.users.length : 0;
         const query = {
           postId: post._id.toString(),
         };
@@ -92,15 +99,14 @@ export const getAllPosts = async (req, res) => {
           TABLE_NAMES.COMMENT,
           query
         );
-        if (!commentCount) {
-          commentCount = 0;
-        }
-
+        commentCount = commentCount ? commentCount.length : 0;
+        const timeAgo = moment(post.createdAt).fromNow();
         return {
           ...post,
           ...userProfile,
-          likeCount: likeCount.users.length,
-          commentCount: commentCount.length,
+          likeCount: likeCount,
+          commentCount: commentCount,
+          timeAgo
         };
       })
     );
