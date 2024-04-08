@@ -11,7 +11,8 @@ export const requiredSignin=async(req,res,next)=>{
                 message:"Log in to continue this operation"
             })
         }
-        const decoded=await mongoDBService.verifyToken(token,JWT_KEY)
+        const realToken=token.replace(/^"(.*)"$/, '$1');
+        const decoded=await mongoDBService.verifyToken(realToken,JWT_KEY)
         if(!decoded){
             return res.json({
                 statusCode:402,

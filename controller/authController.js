@@ -94,7 +94,22 @@ export const login=async(req,res)=>{
         return res.json({
             statusCode:200,
             token,
+            userId:isUserExist._id,
             message:"Logged in Successfully"
+        })
+    } catch (error) {
+        return res.json({
+            statusCode:400,
+            message:error.message
+        })
+    }
+}
+
+export const getUserFromTokenDetails=async(req,res)=>{
+    try {
+        return res.json({
+            statusCode:200,
+            data:req.user
         })
     } catch (error) {
         return res.json({
