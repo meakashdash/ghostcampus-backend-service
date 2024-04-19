@@ -74,7 +74,7 @@ export const getAllPosts = async (req, res) => {
         message: "Unable to Load Posts",
       });
     }
-    const postWithDetails = await Promise.all(
+    let postWithDetails = await Promise.all(
       posts.map(async (post) => {
         const user = await mongoDBService.getItem(
           TABLE_NAMES.USERS,
@@ -110,6 +110,11 @@ export const getAllPosts = async (req, res) => {
         };
       })
     );
+    postWithDetails=await mongoDBService.paginate(
+      postWithDetails,
+      Number(req.query.page),
+      10
+    )
     return res.json({
       statusCode: 200,
       postWithDetails,
