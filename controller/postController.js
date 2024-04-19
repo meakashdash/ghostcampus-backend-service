@@ -465,3 +465,26 @@ export const getReplyComments = async (req, res) => {
     });
   }
 };
+
+export const getUserLikes=async(req,res)=>{
+  try {
+    const { userId } = req.user;
+    
+  } catch (error) {
+    return res.json({
+      statusCode: 400,
+      message: error.message,
+    });
+  }
+}
+
+export const getUserBookmarks=async(req,res)=>{
+  try {
+    
+  } catch (error) {
+    return res.json({
+      statusCode: 400,
+      message: error.message,
+    });
+  }
+}

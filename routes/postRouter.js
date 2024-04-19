@@ -1,5 +1,5 @@
 import express from 'express'
-import { createComment, createPost, deleteComment, getAllComment, getAllPosts, getReplyComments, hitLikeDislike, replyComment, updateComment } from '../controller/postController.js';
+import { createComment, createPost, deleteComment, getAllComment, getAllPosts, getReplyComments, getUserBookmarks, getUserLikes, hitLikeDislike, replyComment, updateComment } from '../controller/postController.js';
 import { requiredSignin } from '../middlewares/authMiddleware.js';
 import multer from 'multer'
 
@@ -50,6 +50,16 @@ postRouter.get(
 postRouter.get(
     '/post/reply-comment/:commentId',
     getReplyComments
+)
+postRouter.get(
+    '/post/get-user-likes',
+    requiredSignin,
+    getUserLikes
+)
+postRouter.get(
+    '/post/get-user-bookmarks',
+    requiredSignin,
+    getUserBookmarks
 )
 
 export default postRouter;
