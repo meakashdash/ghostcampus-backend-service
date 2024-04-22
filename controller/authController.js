@@ -13,6 +13,7 @@ export const createUser=async(req,res)=>{
         const confirmPassword=req.body.confirmPassword;
         const isUserExist=await mongoDBService.findByUniqueValue(
             TABLE_NAMES.USERS,
+            'email',
             email
         )
         if(isUserExist){

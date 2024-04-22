@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 import { MongoDBService } from "../services/MongoDBService.js";
 import { S3Service } from "../services/S3Service.js";
 import { BUCKET_NAME, TABLE_NAMES } from "../utils/config.js";
-import moment from 'moment';
+import moment from "moment";
 
 const mongoDBService = new MongoDBService();
 const s3Service = new S3Service();
@@ -86,12 +86,12 @@ export const getAllPosts = async (req, res) => {
           userId: user._id,
           profilePhoto: user.profilePhoto ? user.profilePhoto : "",
         };
-        let likeCount = await mongoDBService.findByUniqueValue(
+        let likeCount = await mongoDBService.findAllDocument(
           TABLE_NAMES.LIKES,
           "postId",
           post._id.toString()
         );
-        likeCount = likeCount ? likeCount.users.length : 0;
+        likeCount = likeCount ? likeCount.length : 0;
         const query = {
           postId: post._id.toString(),
         };
@@ -106,15 +106,15 @@ export const getAllPosts = async (req, res) => {
           ...userProfile,
           likeCount: likeCount,
           commentCount: commentCount,
-          timeAgo
+          timeAgo,
         };
       })
     );
-    postWithDetails=await mongoDBService.paginate(
+    postWithDetails = await mongoDBService.paginate(
       postWithDetails,
       Number(req.query.page),
       10
-    )
+    );
     return res.json({
       statusCode: 200,
       postWithDetails,
@@ -132,17 +132,24 @@ export const hitLikeDislike = async (req, res) => {
     const { postId } = req.body;
     const { userId } = req.user;
 
-    const allLikes = await mongoDBService.findByUniqueValue(
+    let isLikeExist = await mongoDBService.findAllDocument(
       TABLE_NAMES.LIKES,
-      "postId",
+      'postId',
       postId
     );
 
-    if (!allLikes) {
+    if (!Array.isArray(isLikeExist)) {
+      isLikeExist = [isLikeExist];
+    }
+
+    const isUserLiked = isLikeExist.some((likedPost) => {
+      return likedPost.userId === userId;
+    });
+    if (!isUserLiked) {
       const likeItem = {
         _id: new ObjectId(),
         postId: postId,
-        users: [userId],
+        userId: userId,
       };
 
       const createLikeResponse = await mongoDBService.createItem(
@@ -153,57 +160,103 @@ export const hitLikeDislike = async (req, res) => {
       if (!createLikeResponse) {
         return res.json({
           statusCode: 401,
-          message: "Unable to like the post. Please try again",
+          message: 'Unable to like the post. Try again',
         });
       }
 
       return res.json({
         statusCode: 200,
-        message: "Liked the post",
+        message: 'Liked the post successfully',
       });
     } else {
-      const allUsers = allLikes.users;
-      if (allUsers.includes(userId)) {
-        //logic for dislike the post
-        const updatedUsers = allUsers.filter((user) => user !== userId);
-        const updateOperation = { $set: { users: updatedUsers } };
-        const updateLikeResponse = await mongoDBService.addItemQuery(
-          TABLE_NAMES.LIKES,
-          { _id: allLikes._id },
-          updateOperation
-        );
+      const userLike = isLikeExist.filter((likedPost) => {
+        return likedPost.userId === userId;
+      });
+      const deleteResponse = await mongoDBService.deleteItem(
+        TABLE_NAMES.LIKES,
+        '_id',
+        userLike[0]._id
+      );
 
-        if (!updateLikeResponse) {
-          return res.json({
-            statusCode: 401,
-            message: "Unable to remove like from the post. Please try again",
-          });
-        }
-
+      if (!deleteResponse) {
         return res.json({
-          statusCode: 200,
-          message: "Like removed from the post",
-        });
-      } else {
-        allUsers.push(userId);
-        const filter = { _id: allLikes._id };
-        const updateOperation = { $set: { users: allUsers } };
-        const updateLikeResponse = await mongoDBService.addItemQuery(
-          TABLE_NAMES.LIKES,
-          filter,
-          updateOperation
-        );
-        if (!updateLikeResponse) {
-          return res.json({
-            statusCode: 401,
-            message: "Unable to like the post. Please try again",
-          });
-        }
-        return res.json({
-          statusCode: 200,
-          message: "Liked the post",
+          statusCode: 402,
+          message: 'Unable to dislike the post. Try again',
         });
       }
+
+      return res.json({
+        statusCode: 200,
+        message: 'Disliked the post successfully',
+      });
+    }
+  } catch (error) {
+    return res.json({ statusCode: 400, message: error.message });
+  }
+};
+
+export const hitBookmark=async(req,res)=>{
+  try {
+    const { postId } = req.body;
+    const { userId } = req.user;
+
+    let isBookmarkExist = await mongoDBService.findAllDocument(
+      TABLE_NAMES.BOOKMARK,
+      'postId',
+      postId
+    );
+
+    if (!Array.isArray(isBookmarkExist)) {
+      isBookmarkExist = [isBookmarkExist];
+    }
+
+    const isUserBookmarked = isBookmarkExist.some((bookmarkedPost) => {
+      return bookmarkedPost.userId === userId;
+    });
+    if (!isUserBookmarked) {
+      const bookmarkItem = {
+        _id: new ObjectId(),
+        postId: postId,
+        userId: userId,
+      };
+
+      const createBookmarkResponse = await mongoDBService.createItem(
+        TABLE_NAMES.BOOKMARK,
+        bookmarkItem
+      );
+
+      if (!createBookmarkResponse) {
+        return res.json({
+          statusCode: 401,
+          message: 'Unable to bookmark the post. Try again',
+        });
+      }
+
+      return res.json({
+        statusCode: 200,
+        message: 'Bookmarked the post successfully',
+      });
+    } else {
+      const userLike = isBookmarkExist.filter((bookmarkedPost) => {
+        return bookmarkedPost.userId === userId;
+      });
+      const deleteResponse = await mongoDBService.deleteItem(
+        TABLE_NAMES.BOOKMARK,
+        '_id',
+        userLike[0]._id
+      );
+
+      if (!deleteResponse) {
+        return res.json({
+          statusCode: 402,
+          message: 'Unable to unsave the post. Try again',
+        });
+      }
+
+      return res.json({
+        statusCode: 200,
+        message: 'Unsave the post successfully',
+      });
     }
   } catch (error) {
     return res.json({
@@ -211,7 +264,7 @@ export const hitLikeDislike = async (req, res) => {
       message: error.message,
     });
   }
-};
+}
 
 export const createComment = async (req, res) => {
   try {
@@ -466,25 +519,44 @@ export const getReplyComments = async (req, res) => {
   }
 };
 
-export const getUserLikes=async(req,res)=>{
+export const getUserLikes = async (req, res) => {
   try {
     const { userId } = req.user;
-    
+    const allLikes=await mongoDBService.findAllDocument(
+      TABLE_NAMES.LIKES,
+      'userId',
+      userId
+    )
+    const postIds = allLikes.map(like => like.postId);
+    return res.json({
+      statusCode: 200,
+      likes: postIds,
+    });
   } catch (error) {
     return res.json({
       statusCode: 400,
       message: error.message,
     });
   }
-}
+};
 
-export const getUserBookmarks=async(req,res)=>{
+export const getUserBookmarks = async (req, res) => {
   try {
-    
+    const { userId } = req.user;
+    const allBookmarks=await mongoDBService.findAllDocument(
+      TABLE_NAMES.BOOKMARK,
+      'userId',
+      userId
+    )
+    const postIds = allBookmarks.map(like => like.postId);
+    return res.json({
+      statusCode: 200,
+      bookmarks: postIds,
+    });
   } catch (error) {
     return res.json({
       statusCode: 400,
       message: error.message,
     });
   }
-}
+};
