@@ -157,6 +157,29 @@ export const hitLikeDislike = async (req, res) => {
         likeItem
       );
 
+      //check the user disliked or not
+      let isDisLikeExist = await mongoDBService.findAllDocument(
+        TABLE_NAMES.DOWNVOTE,
+        'postId',
+        postId
+      );
+
+      const isUserDisLiked = isDisLikeExist.some((disLikedPost) => {
+        return disLikedPost.userId === userId;
+      });
+
+      if(isUserDisLiked){
+        const userDislike = isDisLikeExist.filter((likedPost) => {
+          return likedPost.userId === userId;
+        });
+        const deleteResponse = await mongoDBService.deleteItem(
+          TABLE_NAMES.DOWNVOTE,
+          '_id',
+          userDislike[0]?._id
+        );
+        console.log("Deleted the Dislike");
+      }
+
       if (!createLikeResponse) {
         return res.json({
           statusCode: 401,
@@ -167,6 +190,7 @@ export const hitLikeDislike = async (req, res) => {
       return res.json({
         statusCode: 200,
         message: 'Liked the post successfully',
+        length:isLikeExist.length
       });
     } else {
       const userLike = isLikeExist.filter((likedPost) => {
@@ -560,3 +584,119 @@ export const getUserBookmarks = async (req, res) => {
     });
   }
 };
+
+export const hitDownvote=async(req,res)=>{
+  try {
+    const { postId } = req.body;
+    const { userId } = req.user;
+
+    let isDownvoteExist = await mongoDBService.findAllDocument(
+      TABLE_NAMES.DOWNVOTE,
+      'postId',
+      postId
+    );
+
+    if (!Array.isArray(isDownvoteExist)) {
+      isDownvoteExist = [isDownvoteExist];
+    }
+
+    const isUserDownvoted = isDownvoteExist.some((downvotePost) => {
+      return downvotePost.userId === userId;
+    });
+    if (!isUserDownvoted) {
+      const downvoteItem = {
+        _id: new ObjectId(),
+        postId: postId,
+        userId: userId,
+      };
+
+      const createDownvoteResponse = await mongoDBService.createItem(
+        TABLE_NAMES.DOWNVOTE,
+        downvoteItem
+      );
+
+      //check if the like exist for that user in that post
+      let isLikeExist = await mongoDBService.findAllDocument(
+        TABLE_NAMES.LIKES,
+        'postId',
+        postId
+      );
+
+      const isUserLiked = isLikeExist.some((likedPost) => {
+        return likedPost.userId === userId;
+      });
+
+      if(isUserLiked){
+        const userLike = isLikeExist.filter((likedPost) => {
+          return likedPost.userId === userId;
+        });
+        const deleteResponse = await mongoDBService.deleteItem(
+          TABLE_NAMES.LIKES,
+          '_id',
+          userLike[0]._id
+        );
+        console.log("Deleted the Like");
+      }
+      //
+
+      if (!createDownvoteResponse) {
+        return res.json({
+          statusCode: 401,
+          message: 'Unable to downvote the post. Try again',
+        });
+      }
+
+      return res.json({
+        statusCode: 200,
+        message: 'Downvote the post successfully',
+      });
+    } else {
+      const userDownvote = isDownvoteExist.filter((downvotePost) => {
+        return downvotePost.userId === userId;
+      });
+      const deleteResponse = await mongoDBService.deleteItem(
+        TABLE_NAMES.DOWNVOTE,
+        '_id',
+        userDownvote[0]._id
+      );
+
+      if (!deleteResponse) {
+        return res.json({
+          statusCode: 402,
+          message: 'Unable to remove downvote. Try again',
+        });
+      }
+
+      return res.json({
+        statusCode: 200,
+        message: 'Remove downvote from the post successfully',
+      });
+    }
+  } catch (error) {
+    return res.json({
+      statusCode: 400,
+      message: error.message,
+    });
+  }
+}
+
+export const getUserDownvote=async(req,res)=>{
+  try {
+    const { userId } = req.user;
+    const allDownvotes=await mongoDBService.findAllDocument(
+      TABLE_NAMES.DOWNVOTE,
+      'userId',
+      userId
+    )
+    const postIds = allDownvotes.map(like => like.postId);
+    return res.json({
+      statusCode: 200,
+      downvotes: postIds,
+    });
+  } catch (error) {
+    return res.json({
+      statusCode: 400,
+      message: error.message,
+    });
+  }
+}

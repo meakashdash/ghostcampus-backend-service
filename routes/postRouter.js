@@ -1,5 +1,5 @@
 import express from 'express'
-import { createComment, createPost, deleteComment, getAllComment, getAllPosts, getReplyComments, getUserBookmarks, getUserLikes, hitBookmark, hitLikeDislike, replyComment, updateComment } from '../controller/postController.js';
+import { createComment, createPost, deleteComment, getAllComment, getAllPosts, getReplyComments, getUserBookmarks, getUserDownvote, getUserLikes, hitBookmark, hitDownvote, hitLikeDislike, replyComment, updateComment } from '../controller/postController.js';
 import { requiredSignin } from '../middlewares/authMiddleware.js';
 import multer from 'multer'
 
@@ -65,6 +65,16 @@ postRouter.get(
     '/post/get-user-bookmarks',
     requiredSignin,
     getUserBookmarks
+)
+postRouter.post(
+    '/post/downvote',
+    requiredSignin,
+    hitDownvote
+)
+postRouter.get(
+    '/post/get-user-downvote',
+    requiredSignin,
+    getUserDownvote
 )
 
 export default postRouter;

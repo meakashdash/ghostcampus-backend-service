@@ -23,7 +23,8 @@ const CONFIG_PARA={
             POSTS:"POSTS",
             LIKES:"LIKES",
             COMMENT:"COMMENT",
-            BOOKMARK:"BOOKMARK"
+            BOOKMARK:"BOOKMARK",
+            DOWNVOTE:"DOWNVOTE"
         }
     },
     PROD:{
@@ -35,7 +36,8 @@ const CONFIG_PARA={
             POSTS:"POSTS",
             LIKES:"LIKES",
             COMMENT:"COMMENT",
-            BOOKMARK:"BOOKMARK"
+            BOOKMARK:"BOOKMARK",
+            DOWNVOTE:"DOWNVOTE"
         }
     }
 }
