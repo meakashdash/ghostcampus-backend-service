@@ -4,6 +4,7 @@ import { PORT } from "./utils/config.js";
 import authRouter from "./routes/authRouter.js";
 import postRouter from "./routes/postRouter.js";
 import tagRouter from "./routes/tagRouter.js";
+import moodRouter from "./routes/moodRouter.js";
 
 const app = express();
 
@@ -22,7 +23,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-const routes = [authRouter,postRouter,tagRouter];
+const routes = [authRouter,postRouter,tagRouter,moodRouter];
 
 routes.forEach((router) => {
   app.use(router);

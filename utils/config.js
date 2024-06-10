@@ -24,7 +24,8 @@ const CONFIG_PARA={
             LIKES:"LIKES",
             COMMENT:"COMMENT",
             BOOKMARK:"BOOKMARK",
-            DOWNVOTE:"DOWNVOTE"
+            DOWNVOTE:"DOWNVOTE",
+            MOOD_CALENDER:"MOOD_CALENDER"
         }
     },
     PROD:{
@@ -37,7 +38,8 @@ const CONFIG_PARA={
             LIKES:"LIKES",
             COMMENT:"COMMENT",
             BOOKMARK:"BOOKMARK",
-            DOWNVOTE:"DOWNVOTE"
+            DOWNVOTE:"DOWNVOTE",
+            MOOD_CALENDER:"MOOD_CALENDER"
         }
     }
 }
