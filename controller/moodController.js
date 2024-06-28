@@ -14,11 +14,13 @@ export const createMood = async (req, res) => {
             message:"Can't Post Mood for Future"
         })
     }
-    const query = {
-      userId: userId,
-      date: req.body.date,
-    };
-    const moodResponse = await mongoDBService.findByQueryArray(
+    const query = [{
+      $match:{
+        userId: userId,
+        date: req.body.date,
+      }
+    }]
+    const moodResponse = await mongoDBService.findByQuery(
       TABLE_NAMES.MOOD_CALENDER,
       query
     );
@@ -46,7 +48,7 @@ export const createMood = async (req, res) => {
       const moodItem = {
         _id: new ObjectId(),
         userId: userId,
-        date: moment().format("YYYY-MM-DD"),
+        date: req.body.date,
         mood: req.body.mood,
       };
       const moodCreateResponse = await mongoDBService.createItem(

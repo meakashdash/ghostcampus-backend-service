@@ -224,6 +224,36 @@ export class MongoDBService {
       console.log(err);
     }
   }
+
+  async findByQuery(collectionName, query, dbName, session){
+    try {
+        const db = dbName ? this.client.db(dbName) : this.db;
+        const collection = db.collection(collectionName);
+        const queryResult = await collection.aggregate(query, { allowDiskUse: true, session }).toArray();
+        return queryResult;
+    } catch (err) {
+        throw err; // Throw the error to be caught and handled in the calling code
+    }
+}
+async findByQueryPaginate(collectionName, query, page, limit, dbName, session){
+    try {
+        const db = dbName ? this.client.db(dbName) : this.db;
+        const collection = db.collection(collectionName);
+        const queryResult = await collection.aggregate(query, { allowDiskUse: true, session }).toArray();
+        const totalNumberOfPages = Math.ceil(queryResult.length / limit);
+        const currentPage = page;
+        const start = (page - 1) * limit;
+        const end = page * limit;
+        const paginatedData = queryResult.slice(start, end);
+        return {
+            totalNumberOfPages,
+            currentPage,
+            data: paginatedData
+        };
+    } catch (err) {
+        throw err; // Throw the error to be caught and handled in the calling code
+    }
+}
   
   async createIndexesForFields(collectionName, fields, dbName) {
     try {
