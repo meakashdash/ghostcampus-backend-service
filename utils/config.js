@@ -25,7 +25,8 @@ const CONFIG_PARA={
             COMMENT:"COMMENT",
             BOOKMARK:"BOOKMARK",
             DOWNVOTE:"DOWNVOTE",
-            MOOD_CALENDER:"MOOD_CALENDER"
+            MOOD_CALENDER:"MOOD_CALENDER",
+            MARKET_ITEM_CATEGORY:"MARKET_ITEM_CATEGORY"
         }
     },
     PROD:{
@@ -39,7 +40,8 @@ const CONFIG_PARA={
             COMMENT:"COMMENT",
             BOOKMARK:"BOOKMARK",
             DOWNVOTE:"DOWNVOTE",
-            MOOD_CALENDER:"MOOD_CALENDER"
+            MOOD_CALENDER:"MOOD_CALENDER",
+            MARKET_ITEM_CATEGORY:"MARKET_ITEM_CATEGORY"
         }
     }
 }

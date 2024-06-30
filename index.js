@@ -6,6 +6,7 @@ import postRouter from "./routes/postRouter.js";
 import tagRouter from "./routes/tagRouter.js";
 import moodRouter from "./routes/moodRouter.js";
 import marketRouter from "./routes/marketRouter.js";
+import categoryRouter from "./routes/categoryRouter.js";
 
 const app = express();
 
@@ -24,7 +25,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-const routes = [authRouter,postRouter,tagRouter,moodRouter,marketRouter];
+const routes = [authRouter,postRouter,tagRouter,moodRouter,marketRouter,categoryRouter];
 
 routes.forEach((router) => {
   app.use(router);
