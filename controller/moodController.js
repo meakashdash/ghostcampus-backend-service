@@ -8,7 +8,8 @@ const mongoDBService = new MongoDBService();
 export const createMood = async (req, res) => {
   try {
     const { userId } = req.user;
-    if(req.body.date>moment().format('YYYY-MM-DD')){
+    const inputDate = moment(req.body.date, 'YYYY-MM-DD').format('YYYY-MM-DD');
+    if(inputDate>moment().format('YYYY-MM-DD')){
         return res.json({
             statusCode:400,
             message:"Can't Post Mood for Future"
