@@ -18,7 +18,7 @@ export const createMood = async (req, res) => {
     const query = [{
       $match:{
         userId: userId,
-        date: req.body.date,
+        date: inputDate,
       }
     }]
     const moodResponse = await mongoDBService.findByQuery(
@@ -49,7 +49,7 @@ export const createMood = async (req, res) => {
       const moodItem = {
         _id: new ObjectId(),
         userId: userId,
-        date: req.body.date,
+        date: inputDate,
         mood: req.body.mood,
       };
       const moodCreateResponse = await mongoDBService.createItem(
