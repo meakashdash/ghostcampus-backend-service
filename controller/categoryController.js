@@ -59,11 +59,13 @@ export const addCategory=async(req,res)=>{
 
 export const getParentCategory=async(req,res)=>{
     try {
-        const query=[{
-            $match:{
-                type:'parent'
-            }
-        }]
+        const query=[
+            {
+                $match:{
+                    type:'parent'
+                }
+            },
+        ]
         const parentResponse=await mongoDBService.findByQuery(
             TABLE_NAMES.MARKET_ITEM_CATEGORY,
             query
@@ -106,6 +108,23 @@ export const getChildCategory=async(req,res)=>{
         return res.json({
             statusCode:200,
             childResponse
+        })
+    } catch (error) {
+        return res.json({
+            statusCode: 400,
+            message: error.message,
+        });
+    }
+}
+
+export const getCategory=async(req,res)=>{
+    try {
+        const categories=await mongoDBService.getAllItem(
+            TABLE_NAMES.MARKET_ITEM_CATEGORY
+        )
+        return res.json({
+            statusCode:200,
+            categories
         })
     } catch (error) {
         return res.json({
