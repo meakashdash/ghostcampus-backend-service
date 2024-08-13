@@ -10,10 +10,7 @@ const marketRouter=express.Router();
 
 marketRouter.post('/market',requiredSignin,upload.fields([{ name: 'images', maxCount: 5 }, { name: 'videos', maxCount: 5 }]),createMarketPost)
 marketRouter.get('/market',requiredSignin,getItems)
-<<<<<<< Updated upstream
-marketRouter.get('/market/:id',requiredSignin,getItem)
-=======
-marketRouter.get('/market/:id',requiredSignin,getItemsByCategory)
->>>>>>> Stashed changes
+marketRouter.get('/market/:itemId', requiredSignin, getItem);
+
 
 export default marketRouter;

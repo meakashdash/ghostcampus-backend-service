@@ -123,17 +123,35 @@ export const getItems = async (req, res) => {
 export const getItem = async (req, res) => {
   try {
     const { itemId } = req.params;
-    const query = [
+    const query=[
       {
-        $match: {
-          _id: new ObjectId(itemId),
+        $match:{
+          _id:new ObjectId(itemId)
+        }
+      },
+      {
+        $lookup: {
+          from: TABLE_NAMES.MARKET_ITEM_CATEGORY,
+          let: { categoryId: { $toObjectId: "$categoryId" } },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$_id", "$$categoryId"],
+                },
+              },
+            },
+            {
+              $project: {
+                categoryName: 1,
+              },
+            },
+          ],
+          as: "category",
         },
       },
-    ];
-    const item = await mongoDBService.findByQuery(
-      TABLE_NAMES.MARKET_ITEM,
-      query
-    );
+    ]
+    const item = await mongoDBService.findByQuery(TABLE_NAMES.MARKET_ITEM, query);
     if (!item) {
       return res.json({
         statusCode: 404,
@@ -142,7 +160,7 @@ export const getItem = async (req, res) => {
     }
     return res.json({
       statusCode: 200,
-      item,
+      item:item[0],
     });
   } catch (error) {
     return res.json({
