@@ -188,3 +188,14 @@ export const getItemByCategory = async (req, res) => {
     });
   }
 };
+
+export const getItemsByCategory=async(req,res)=>{
+  try {
+    
+  } catch (error) {
+    return res.json({
+      statusCode: 400,
+      message: error.message,
+    });
+  }
+}
