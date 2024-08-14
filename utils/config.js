@@ -27,7 +27,8 @@ const CONFIG_PARA={
             DOWNVOTE:"DOWNVOTE",
             MOOD_CALENDER:"MOOD_CALENDER",
             MARKET_ITEM_CATEGORY:"MARKET_ITEM_CATEGORY",
-            MARKET_ITEM:"MARKET_ITEM"
+            MARKET_ITEM:"MARKET_ITEM",
+            WISHLIST:"WISHLIST"
         }
     },
     PROD:{
@@ -43,7 +44,8 @@ const CONFIG_PARA={
             DOWNVOTE:"DOWNVOTE",
             MOOD_CALENDER:"MOOD_CALENDER",
             MARKET_ITEM_CATEGORY:"MARKET_ITEM_CATEGORY",
-            MARKET_ITEM:"MARKET_ITEM"
+            MARKET_ITEM:"MARKET_ITEM",
+            WISHLIST:"WISHLIST"
         }
     }
 }

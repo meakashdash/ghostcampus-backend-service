@@ -217,3 +217,75 @@ export const getItemsByCategory=async(req,res)=>{
     });
   }
 }
+
+export const addWishList=async(req,res)=>{
+  try {
+    const { itemId } = req.body;
+    const { userId } = req.user;
+
+    let isWishlistExist = await mongoDBService.findAllDocument(
+      TABLE_NAMES.WISHLIST,
+      'itemId',
+      itemId
+    );
+
+    if (!Array.isArray(isWishlistExist)) {
+      isWishlistExist = [isWishlistExist];
+    }
+
+    const isUserWishlisted = isWishlistExist.some((wishlistedPost) => {
+      return wishlistedPost.userId === userId;
+    });
+    if (!isUserWishlisted) {
+      const wishlistItem = {
+        _id: new ObjectId(),
+        itemId: itemId,
+        userId: userId,
+      };
+
+      const createWishlistResponse = await mongoDBService.createItem(
+        TABLE_NAMES.WISHLIST,
+        wishlistItem
+      );
+
+      if (!createWishlistResponse) {
+        return res.json({
+          statusCode: 401,
+          message: 'Unable to wishlist the item. Try again',
+        });
+      }
+
+      return res.json({
+        statusCode: 200,
+        message: 'Wishlisted the item successfully',
+        itemId
+      });
+    } else {
+      const userLike = isWishlistExist.filter((wishlistedPost) => {
+        return wishlistedPost.userId === userId;
+      });
+      const deleteResponse = await mongoDBService.deleteItem(
+        TABLE_NAMES.WISHLIST,
+        '_id',
+        userLike[0]._id
+      );
+
+      if (!deleteResponse) {
+        return res.json({
+          statusCode: 402,
+          message: 'Unable to unsave the item. Try again',
+        });
+      }
+
+      return res.json({
+        statusCode: 200,
+        message: 'Unsave the item successfully',
+      });
+    }
+  } catch (error) {
+    return res.json({
+      statusCode: 400,
+      message: error.message,
+    });
+  }
+}
