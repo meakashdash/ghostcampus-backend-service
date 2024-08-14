@@ -176,7 +176,7 @@ export const getItemByCategory = async (req, res) => {
     const query = [
       {
         $match: {
-          categoryId: categoryId,
+          categoryId: new ObjectId(categoryId),
         },
       },
     ];
@@ -184,13 +184,13 @@ export const getItemByCategory = async (req, res) => {
       TABLE_NAMES.MARKET_ITEM,
       query
     );
-    if (!itemByCategoryDetails) {
+    if (itemByCategoryDetails.length===0) {
       return res.json({
         statusCode: 404,
         message: "Items not Found",
       });
     }
-    itemDetails = await mongoDBService.paginate(
+    const itemDetails = await mongoDBService.paginate(
       itemByCategoryDetails,
       Number(req.query.page),
       10
