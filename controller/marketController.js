@@ -173,31 +173,68 @@ export const getItem = async (req, res) => {
 export const getItemByCategory = async (req, res) => {
   try {
     const { categoryId } = req.params;
+    const { page, limit } = req.query;
+    const numericPage = Number(page);
+    const numericLimit = Number(limit);
+    const skip = (numericPage - 1) * numericLimit;
     const query = [
       {
         $match: {
-          categoryId: new ObjectId(categoryId),
+          categoryId: categoryId,
+          status: "active"
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: numericLimit,
+      },
+      {
+        $lookup: {
+          from: TABLE_NAMES.MARKET_ITEM_CATEGORY,
+          let: { categoryId: { $toObjectId: "$categoryId" } },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$_id", "$$categoryId"],
+                },
+              },
+            },
+          ],
+          as: "category",
+        },
+      },
+      {
+        $unwind: "$category",
+      },
+      {
+        $project: {
+          _id: 1,
+          categoryId: 1,
+          title: 1,
+          price: 1,
+          createdAt: 1,
+          categoryName: "$category.categoryName",
         },
       },
     ];
-    const itemByCategoryDetails = await mongoDBService.findByQuery(
+    const items = await mongoDBService.findByQuery(
       TABLE_NAMES.MARKET_ITEM,
       query
     );
-    if (itemByCategoryDetails.length===0) {
+
+    if (!items || items.length === 0) {
       return res.json({
         statusCode: 404,
-        message: "Items not Found",
+        message: "Items not found",
       });
     }
-    const itemDetails = await mongoDBService.paginate(
-      itemByCategoryDetails,
-      Number(req.query.page),
-      10
-    );
+
     return res.json({
       statusCode: 200,
-      itemDetails,
+      items,
     });
   } catch (error) {
     return res.json({
