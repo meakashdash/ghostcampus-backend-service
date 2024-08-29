@@ -37,6 +37,7 @@ export const createPost = async (req, res) => {
       _id: new ObjectId(),
       userId: userId,
       title: req.body.title,
+      description: req.body.description,
       tagColor: tagResponse.color,
       tagText: tagResponse.text,
       media: media,
