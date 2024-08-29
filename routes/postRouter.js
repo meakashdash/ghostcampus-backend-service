@@ -11,7 +11,7 @@ const postRouter=express.Router();
 postRouter.post(
     '/post/create',
     requiredSignin,
-    upload.fields([{ name: 'images', maxCount: 5 }, { name: 'videos', maxCount: 5 }]),
+    upload.fields([{ name: 'images', maxCount: 1 }, { name: 'videos', maxCount: 1 }]),
     createPost
 )
 postRouter.get(

@@ -12,7 +12,7 @@ export const createPost = async (req, res) => {
     const { tagId } = req.body;
     const media = {};
     const timestamp = Date.now().toString();
-    if (req.files.images) {
+    if (req.files && req.files.images) {
       const imageKey = `images/${timestamp}`;
       const images = await s3Service.uploadImages(
         req.files,
@@ -22,7 +22,7 @@ export const createPost = async (req, res) => {
       );
       media.images = images;
     }
-    if (req.files.videos) {
+    if (req.files && req.files.videos) {
       const videoKey = `videos/${timestamp}`;
       const videos = await s3Service.uploadVideos(
         req.files,

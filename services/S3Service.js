@@ -40,7 +40,8 @@ export class S3Service{
             // if(files.images.length===1){
             //     files.images=[files.images]
             // }
-            const uploadPromises = files.images.map(async (image, index) => {
+            const images = Array.isArray(files.images) ? files.images : [files.images];
+            const uploadPromises = images.map(async (image, index) => {
                 const fullPath = `${folderName}/${key}/${index}`;
                 const uploadParams = {
                     Bucket: bucketName,
@@ -67,7 +68,8 @@ export class S3Service{
             // if(files.videos.length===1){
             //     files.videos=[files.videos]
             // }
-            const uploadPromises = files.videos.map(async (video, index) => {
+            const videos = Array.isArray(files.videos) ? files.videos : [files.videos];
+            const uploadPromises = videos.map(async (video, index) => {
                 const fullPath = `${folderName}/${key}/${index}`;
                 const uploadParams = {
                     Bucket: bucketName,
