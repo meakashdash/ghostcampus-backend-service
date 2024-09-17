@@ -99,7 +99,8 @@ export const getChildCategory = async (req, res) => {
       {
         $project:{
             _id:1,
-            categoryName:1
+            categoryName:1,
+            attributes:1
         }
       }
     ];
