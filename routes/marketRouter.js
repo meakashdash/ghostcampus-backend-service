@@ -8,7 +8,7 @@ const upload = multer({ storage: storage });
 
 const marketRouter=express.Router();
 
-marketRouter.post('/market',requiredSignin,upload.fields([{ name: 'images', maxCount: 5 }, { name: 'videos', maxCount: 5 }]),createMarketPost)
+marketRouter.post('/market',requiredSignin,upload.fields([{ name: 'images', maxCount: 5 }]),createMarketPost)
 marketRouter.get('/market',requiredSignin,getItems)
 marketRouter.get('/market/category/:categoryId',requiredSignin,getItemByCategory)
 marketRouter.get('/market/:itemId', requiredSignin, getItem);

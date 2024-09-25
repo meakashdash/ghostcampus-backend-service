@@ -1,21 +1,46 @@
 import { ObjectId } from "mongodb";
 import { MongoDBService } from "../services/MongoDBService.js";
-import { TABLE_NAMES } from "../utils/config.js";
+import { BUCKET_NAME, TABLE_NAMES } from "../utils/config.js";
+import { S3Service } from "../services/S3Service.js";
 
 const mongoDBService = new MongoDBService();
+const s3Service = new S3Service();
 export const createMarketPost = async (req, res) => {
   try {
     const { userId } = req.user;
-    const { categoryId, title, description, price, attributes, location } =
-      req.body;
+    const media = {};
+    const {
+      categoryId,
+      title,
+      description,
+      price,
+      attributes,
+      campus,
+      building,
+    } = req.body;
+    const timestamp = Date.now().toString();
+    if (req.files && req.files.images) {
+      const imageKey = `market-images/${timestamp}`;
+      const images = await s3Service.uploadImages(
+        req.files,
+        BUCKET_NAME,
+        "marketplace",
+        imageKey
+      );
+      media.images = images;
+    }
     const marketItem = {
       _id: new ObjectId(),
       categoryId,
       title,
       description,
       price,
-      attributes,
-      location,
+      attributes:JSON.parse(attributes),
+      location: {
+        campus,
+        building,
+      },
+      media: media,
       sellerid: userId,
       status: "active",
       createdAt: new Date(),
@@ -123,11 +148,11 @@ export const getItems = async (req, res) => {
 export const getItem = async (req, res) => {
   try {
     const { itemId } = req.params;
-    const query=[
+    const query = [
       {
-        $match:{
-          _id:new ObjectId(itemId)
-        }
+        $match: {
+          _id: new ObjectId(itemId),
+        },
       },
       {
         $lookup: {
@@ -150,8 +175,11 @@ export const getItem = async (req, res) => {
           as: "category",
         },
       },
-    ]
-    const item = await mongoDBService.findByQuery(TABLE_NAMES.MARKET_ITEM, query);
+    ];
+    const item = await mongoDBService.findByQuery(
+      TABLE_NAMES.MARKET_ITEM,
+      query
+    );
     if (!item) {
       return res.json({
         statusCode: 404,
@@ -160,7 +188,7 @@ export const getItem = async (req, res) => {
     }
     return res.json({
       statusCode: 200,
-      item:item[0],
+      item: item[0],
     });
   } catch (error) {
     return res.json({
@@ -181,7 +209,7 @@ export const getItemByCategory = async (req, res) => {
       {
         $match: {
           categoryId: categoryId,
-          status: "active"
+          status: "active",
         },
       },
       {
@@ -244,25 +272,24 @@ export const getItemByCategory = async (req, res) => {
   }
 };
 
-export const getItemsByCategory=async(req,res)=>{
+export const getItemsByCategory = async (req, res) => {
   try {
-    
   } catch (error) {
     return res.json({
       statusCode: 400,
       message: error.message,
     });
   }
-}
+};
 
-export const addWishList=async(req,res)=>{
+export const addWishList = async (req, res) => {
   try {
     const { itemId } = req.body;
     const { userId } = req.user;
 
     let isWishlistExist = await mongoDBService.findAllDocument(
       TABLE_NAMES.WISHLIST,
-      'itemId',
+      "itemId",
       itemId
     );
 
@@ -288,14 +315,14 @@ export const addWishList=async(req,res)=>{
       if (!createWishlistResponse) {
         return res.json({
           statusCode: 401,
-          message: 'Unable to wishlist the item. Try again',
+          message: "Unable to wishlist the item. Try again",
         });
       }
 
       return res.json({
         statusCode: 200,
-        message: 'Wishlisted the item successfully',
-        itemId
+        message: "Wishlisted the item successfully",
+        itemId,
       });
     } else {
       const userLike = isWishlistExist.filter((wishlistedPost) => {
@@ -303,20 +330,20 @@ export const addWishList=async(req,res)=>{
       });
       const deleteResponse = await mongoDBService.deleteItem(
         TABLE_NAMES.WISHLIST,
-        '_id',
+        "_id",
         userLike[0]._id
       );
 
       if (!deleteResponse) {
         return res.json({
           statusCode: 402,
-          message: 'Unable to unsave the item. Try again',
+          message: "Unable to unsave the item. Try again",
         });
       }
 
       return res.json({
         statusCode: 200,
-        message: 'Unsave the item successfully',
+        message: "Unsave the item successfully",
       });
     }
   } catch (error) {
@@ -325,4 +352,4 @@ export const addWishList=async(req,res)=>{
       message: error.message,
     });
   }
-}
+};

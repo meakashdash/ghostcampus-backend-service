@@ -13,7 +13,7 @@ export const createPost = async (req, res) => {
     const media = {};
     const timestamp = Date.now().toString();
     if (req.files && req.files.images) {
-      const imageKey = `images/${timestamp}`;
+      const imageKey = `post-images/${timestamp}`;
       const images = await s3Service.uploadImages(
         req.files,
         BUCKET_NAME,
