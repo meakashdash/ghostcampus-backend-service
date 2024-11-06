@@ -135,7 +135,7 @@ export const hitLikeDislike = async (req, res) => {
 
     let isLikeExist = await mongoDBService.findAllDocument(
       TABLE_NAMES.LIKES,
-      'postId',
+      "postId",
       postId
     );
 
@@ -161,7 +161,7 @@ export const hitLikeDislike = async (req, res) => {
       //check the user disliked or not
       let isDisLikeExist = await mongoDBService.findAllDocument(
         TABLE_NAMES.DOWNVOTE,
-        'postId',
+        "postId",
         postId
       );
 
@@ -169,13 +169,13 @@ export const hitLikeDislike = async (req, res) => {
         return disLikedPost.userId === userId;
       });
 
-      if(isUserDisLiked){
+      if (isUserDisLiked) {
         const userDislike = isDisLikeExist.filter((likedPost) => {
           return likedPost.userId === userId;
         });
         const deleteResponse = await mongoDBService.deleteItem(
           TABLE_NAMES.DOWNVOTE,
-          '_id',
+          "_id",
           userDislike[0]?._id
         );
         console.log("Deleted the Dislike");
@@ -184,14 +184,14 @@ export const hitLikeDislike = async (req, res) => {
       if (!createLikeResponse) {
         return res.json({
           statusCode: 401,
-          message: 'Unable to like the post. Try again',
+          message: "Unable to like the post. Try again",
         });
       }
 
       return res.json({
         statusCode: 200,
-        message: 'Liked the post successfully',
-        length:isLikeExist.length
+        message: "Liked the post successfully",
+        length: isLikeExist.length,
       });
     } else {
       const userLike = isLikeExist.filter((likedPost) => {
@@ -199,20 +199,20 @@ export const hitLikeDislike = async (req, res) => {
       });
       const deleteResponse = await mongoDBService.deleteItem(
         TABLE_NAMES.LIKES,
-        '_id',
+        "_id",
         userLike[0]._id
       );
 
       if (!deleteResponse) {
         return res.json({
           statusCode: 402,
-          message: 'Unable to dislike the post. Try again',
+          message: "Unable to dislike the post. Try again",
         });
       }
 
       return res.json({
         statusCode: 200,
-        message: 'Disliked the post successfully',
+        message: "Disliked the post successfully",
       });
     }
   } catch (error) {
@@ -220,14 +220,14 @@ export const hitLikeDislike = async (req, res) => {
   }
 };
 
-export const hitBookmark=async(req,res)=>{
+export const hitBookmark = async (req, res) => {
   try {
     const { postId } = req.body;
     const { userId } = req.user;
 
     let isBookmarkExist = await mongoDBService.findAllDocument(
       TABLE_NAMES.BOOKMARK,
-      'postId',
+      "postId",
       postId
     );
 
@@ -253,13 +253,13 @@ export const hitBookmark=async(req,res)=>{
       if (!createBookmarkResponse) {
         return res.json({
           statusCode: 401,
-          message: 'Unable to bookmark the post. Try again',
+          message: "Unable to bookmark the post. Try again",
         });
       }
 
       return res.json({
         statusCode: 200,
-        message: 'Bookmarked the post successfully',
+        message: "Bookmarked the post successfully",
       });
     } else {
       const userLike = isBookmarkExist.filter((bookmarkedPost) => {
@@ -267,20 +267,20 @@ export const hitBookmark=async(req,res)=>{
       });
       const deleteResponse = await mongoDBService.deleteItem(
         TABLE_NAMES.BOOKMARK,
-        '_id',
+        "_id",
         userLike[0]._id
       );
 
       if (!deleteResponse) {
         return res.json({
           statusCode: 402,
-          message: 'Unable to unsave the post. Try again',
+          message: "Unable to unsave the post. Try again",
         });
       }
 
       return res.json({
         statusCode: 200,
-        message: 'Unsave the post successfully',
+        message: "Unsave the post successfully",
       });
     }
   } catch (error) {
@@ -289,7 +289,7 @@ export const hitBookmark=async(req,res)=>{
       message: error.message,
     });
   }
-}
+};
 
 export const createComment = async (req, res) => {
   try {
@@ -547,12 +547,12 @@ export const getReplyComments = async (req, res) => {
 export const getUserLikes = async (req, res) => {
   try {
     const { userId } = req.user;
-    const allLikes=await mongoDBService.findAllDocument(
+    const allLikes = await mongoDBService.findAllDocument(
       TABLE_NAMES.LIKES,
-      'userId',
+      "userId",
       userId
-    )
-    const postIds = allLikes.map(like => like.postId);
+    );
+    const postIds = allLikes.map((like) => like.postId);
     return res.json({
       statusCode: 200,
       likes: postIds,
@@ -568,12 +568,12 @@ export const getUserLikes = async (req, res) => {
 export const getUserBookmarks = async (req, res) => {
   try {
     const { userId } = req.user;
-    const allBookmarks=await mongoDBService.findAllDocument(
+    const allBookmarks = await mongoDBService.findAllDocument(
       TABLE_NAMES.BOOKMARK,
-      'userId',
+      "userId",
       userId
-    )
-    const postIds = allBookmarks.map(like => like.postId);
+    );
+    const postIds = allBookmarks.map((like) => like.postId);
     return res.json({
       statusCode: 200,
       bookmarks: postIds,
@@ -586,14 +586,14 @@ export const getUserBookmarks = async (req, res) => {
   }
 };
 
-export const hitDownvote=async(req,res)=>{
+export const hitDownvote = async (req, res) => {
   try {
     const { postId } = req.body;
     const { userId } = req.user;
 
     let isDownvoteExist = await mongoDBService.findAllDocument(
       TABLE_NAMES.DOWNVOTE,
-      'postId',
+      "postId",
       postId
     );
 
@@ -619,7 +619,7 @@ export const hitDownvote=async(req,res)=>{
       //check if the like exist for that user in that post
       let isLikeExist = await mongoDBService.findAllDocument(
         TABLE_NAMES.LIKES,
-        'postId',
+        "postId",
         postId
       );
 
@@ -627,13 +627,13 @@ export const hitDownvote=async(req,res)=>{
         return likedPost.userId === userId;
       });
 
-      if(isUserLiked){
+      if (isUserLiked) {
         const userLike = isLikeExist.filter((likedPost) => {
           return likedPost.userId === userId;
         });
         const deleteResponse = await mongoDBService.deleteItem(
           TABLE_NAMES.LIKES,
-          '_id',
+          "_id",
           userLike[0]._id
         );
         console.log("Deleted the Like");
@@ -643,13 +643,13 @@ export const hitDownvote=async(req,res)=>{
       if (!createDownvoteResponse) {
         return res.json({
           statusCode: 401,
-          message: 'Unable to downvote the post. Try again',
+          message: "Unable to downvote the post. Try again",
         });
       }
 
       return res.json({
         statusCode: 200,
-        message: 'Downvote the post successfully',
+        message: "Downvote the post successfully",
       });
     } else {
       const userDownvote = isDownvoteExist.filter((downvotePost) => {
@@ -657,20 +657,20 @@ export const hitDownvote=async(req,res)=>{
       });
       const deleteResponse = await mongoDBService.deleteItem(
         TABLE_NAMES.DOWNVOTE,
-        '_id',
+        "_id",
         userDownvote[0]._id
       );
 
       if (!deleteResponse) {
         return res.json({
           statusCode: 402,
-          message: 'Unable to remove downvote. Try again',
+          message: "Unable to remove downvote. Try again",
         });
       }
 
       return res.json({
         statusCode: 200,
-        message: 'Remove downvote from the post successfully',
+        message: "Remove downvote from the post successfully",
       });
     }
   } catch (error) {
@@ -679,17 +679,17 @@ export const hitDownvote=async(req,res)=>{
       message: error.message,
     });
   }
-}
+};
 
-export const getUserDownvote=async(req,res)=>{
+export const getUserDownvote = async (req, res) => {
   try {
     const { userId } = req.user;
-    const allDownvotes=await mongoDBService.findAllDocument(
+    const allDownvotes = await mongoDBService.findAllDocument(
       TABLE_NAMES.DOWNVOTE,
-      'userId',
+      "userId",
       userId
-    )
-    const postIds = allDownvotes.map(like => like.postId);
+    );
+    const postIds = allDownvotes.map((like) => like.postId);
     return res.json({
       statusCode: 200,
       downvotes: postIds,
@@ -700,4 +700,71 @@ export const getUserDownvote=async(req,res)=>{
       message: error.message,
     });
   }
-}
+};
+
+export const getUserOnlyPosts = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    let posts = await mongoDBService.findAllDocument(
+      TABLE_NAMES.POSTS,
+      "userId",
+      userId
+    );
+    if (!posts) {
+      return res.json({
+        statusCode: 401,
+        message: "Unable to Load Posts",
+      });
+    }
+    let postWithDetails = await Promise.all(
+      posts.map(async (post) => {
+        const user = await mongoDBService.getItem(
+          TABLE_NAMES.USERS,
+          post.userId
+        );
+
+        const userProfile = {
+          userName: user.userName,
+          userId: user._id,
+          profilePhoto: user.profilePhoto ? user.profilePhoto : "",
+        };
+        let likeCount = await mongoDBService.findAllDocument(
+          TABLE_NAMES.LIKES,
+          "postId",
+          post._id.toString()
+        );
+        likeCount = likeCount ? likeCount.length : 0;
+        const query = {
+          postId: post._id.toString(),
+        };
+        let commentCount = await mongoDBService.findByQueryArray(
+          TABLE_NAMES.COMMENT,
+          query
+        );
+        commentCount = commentCount ? commentCount.length : 0;
+        const timeAgo = moment(post.createdAt).fromNow();
+        return {
+          ...post,
+          ...userProfile,
+          likeCount: likeCount,
+          commentCount: commentCount,
+          timeAgo,
+        };
+      })
+    );
+    postWithDetails = await mongoDBService.paginate(
+      postWithDetails,
+      Number(req.query.page),
+      10
+    );
+    return res.json({
+      statusCode: 200,
+      postWithDetails,
+    });
+  } catch (error) {
+    return res.json({
+      statusCode: 400,
+      message: error.message,
+    });
+  }
+};

@@ -1,7 +1,6 @@
 import { ObjectId } from "mongodb";
 import { MongoDBService } from "../services/MongoDBService.js";
 import { TABLE_NAMES } from "../utils/config.js";
-import { response } from "express";
 
 const mongoDBService=new MongoDBService();
 export const getUserDetails=async(req,res)=>{
