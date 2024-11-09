@@ -768,3 +768,58 @@ export const getUserOnlyPosts = async (req, res) => {
     });
   }
 };
+
+export const getUserLikesPosts = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    // Get all likes by the user
+    const userLikes = await mongoDBService.findAllDocument(TABLE_NAMES.LIKES, "userId", userId);
+
+    if (!userLikes || userLikes.length === 0) {
+      return res.json({
+        statusCode: 200,
+        message: "No liked posts found",
+        likedPosts: []
+      });
+    }
+
+    // Retrieve post details for each liked post
+    const likedPosts = await Promise.all(
+      userLikes.map(async (like) => {
+        const post = await mongoDBService.getItem(TABLE_NAMES.POSTS, like.postId);
+        if (!post) return null;
+
+        const user = await mongoDBService.getItem(TABLE_NAMES.USERS, post.userId);
+
+        // Aggregate post details
+        const userProfile = {
+          userName: user?.userName || "Anonymous",
+          userId: user?._id,
+          profilePhoto: user?.profilePhoto || ""
+        };
+
+        const likeCount = await mongoDBService.findAllDocument(TABLE_NAMES.LIKES, "postId", post._id.toString());
+        const commentCount = await mongoDBService.findByQueryArray(TABLE_NAMES.COMMENT, { postId: post._id.toString() });
+        const timeAgo = moment(post.createdAt).fromNow();
+
+        return {
+          ...post,
+          ...userProfile,
+          likeCount: likeCount ? likeCount.length : 0,
+          commentCount: commentCount ? commentCount.length : 0,
+          timeAgo
+        };
+      })
+    );
+
+    return res.json({
+      statusCode: 200,
+      likedPosts: likedPosts.filter(Boolean)  // Filter out any null results
+    });
+  } catch (error) {
+    return res.json({
+      statusCode: 400,
+      message: error.message
+    });
+  }
+};
