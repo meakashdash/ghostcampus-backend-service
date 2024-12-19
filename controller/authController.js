@@ -44,7 +44,8 @@ export const createUser=async(req,res)=>{
             _id:new ObjectId(),
             userName,
             email,
-            password:hashedPassword
+            password:hashedPassword,
+            isPresent:true
         }
         const createUserResponse=await mongoDBService.createItem(
             TABLE_NAMES.USERS,
@@ -84,6 +85,12 @@ export const login=async(req,res)=>{
             return res.json({
                 statusCode:402,
                 message:"Password is incorrect"
+            })
+        }
+        if(isUserExist.isPresent===false){
+            return res.json({
+                statusCode:403,
+                message:"Invalid credentials"
             })
         }
         const payload={
